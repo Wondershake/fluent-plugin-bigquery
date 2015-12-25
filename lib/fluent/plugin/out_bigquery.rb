@@ -64,6 +64,8 @@ module Fluent
     config_param :table, :string, default: nil
     config_param :tables, :string, default: nil
 
+    config_param :table_timezone, :string, default: nil
+
     config_param :auto_create_table, :bool, default: false
 
     config_param :schema_path, :string, default: nil
@@ -277,7 +279,7 @@ module Fluent
     end
 
     def generate_table_id(table_id_format, current_time)
-      current_time.strftime(table_id_format)
+      current_time.localtime(@table_timezone).strftime(table_id_format)
     end
 
     def create_table(table_id)

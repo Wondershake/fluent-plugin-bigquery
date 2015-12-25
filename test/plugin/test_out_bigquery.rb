@@ -854,6 +854,30 @@ class BigQueryOutputTest < Test::Unit::TestCase
     assert_equal 'foo_2014_08_11', table_id
   end
 
+  def test_generate_table_id_with_timezone
+    driver = create_driver(<<-CONFIG)
+      table foo
+      table_timezone +09:00
+      email foo@bar.example
+      private_key_path /path/to/key
+      project yourproject_id
+      dataset yourdataset_id
+
+      time_format %s
+      time_field  time
+
+      field_integer time,status,bytes
+      field_string  vhost,path,method,protocol,agent,referer,remote.host,remote.ip,remote.user
+      field_float   requesttime
+      field_boolean bot_access,loginsession
+    CONFIG
+
+    table_id_format = 'foo_%Y_%m_%d'
+    time = Time.gm(2014, 8, 11, 21, 20, 56)
+    table_id = driver.instance.generate_table_id(table_id_format, time)
+    assert_equal 'foo_2014_08_12', table_id
+  end
+
   def test_auto_create_table_by_bigquery_api
     now = Time.now
     message = {
